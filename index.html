@@ -573,8 +573,15 @@ function savePlannerHrs(){
   renderPlanner();
 }
 function savePlannerDate(){
-  var val = document.getElementById('planner-date-input').value;
-  if(!val) return;
+  var val = document.getElementById('planner-date-input');
+  if(val && val.value){ localStorage.setItem(EXAM_KEY, val.value); renderPlanner(); }
+}
+function savePlannerDateCustom(){
+  var d = document.getElementById('pl-day').value;
+  var m = document.getElementById('pl-month').value;
+  var y = document.getElementById('pl-year').value;
+  if(!d||!m||!y) return;
+  var val = y+'-'+m+'-'+d;
   localStorage.setItem(EXAM_KEY, val);
   renderPlanner();
 }
@@ -585,10 +592,14 @@ function renderPlanner(){
   var extraMode = localStorage.getItem(PLANNER_EXTRA_KEY)||'no';
   var chkData = JSON.parse(localStorage.getItem(PLANNER_CHK_KEY)||'{"cfp1":false,"cfp2":false}');
 
-  // sync date input
-  var di = document.getElementById('planner-date-input');
+  // sync date dropdowns
   var saved = localStorage.getItem(EXAM_KEY);
-  if(di && saved) di.value = saved;
+  if(saved && saved.match(/^\d{4}-\d{2}-\d{2}$/)){
+    var parts = saved.split('-');
+    var dy = document.getElementById('pl-day'); if(dy) dy.value = parts[2];
+    var dm = document.getElementById('pl-month'); if(dm) dm.value = parts[1];
+    var dyr = document.getElementById('pl-year'); if(dyr) dyr.value = parts[0];
+  }
 
   var sel = document.getElementById('pl-hrs-select');
   if(sel) sel.value = hrsPerDay;
@@ -11920,7 +11931,21 @@ VFNNNdVU71j/P/iGMRRK8x1UAAAAAElFTkSuQmCC" transform="matrix(0.9898 0 0 1 0 0)">
     <!-- Set exam date -->
     <div class="pl-card" style="background:var(--pink);border-color:rgba(255,255,255,.15);">
       <div class="pl-card-title" style="color:rgba(255,255,255,.7);">วันสอบ</div>
-      <input type="date" id="planner-date-input" style="width:100%;padding:11px 14px;border:2px solid rgba(255,255,255,.3);border-radius:11px;font-family:'Prompt',sans-serif;font-size:1rem;color:#1A1A1A;background:#fff;outline:none;box-sizing:border-box;" onchange="savePlannerDate()">
+      <div style="display:flex;gap:8px;width:100%;box-sizing:border-box;">
+        <select id="pl-day" onchange="savePlannerDateCustom()" style="flex:1;padding:11px 6px;border:2px solid rgba(255,255,255,.3);border-radius:11px;font-family:'Prompt',sans-serif;font-size:0.95rem;color:#1A1A1A;background:#fff;outline:none;box-sizing:border-box;-webkit-appearance:none;text-align:center;">
+          <option value="">วัน</option><option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option>
+        </select>
+        <select id="pl-month" onchange="savePlannerDateCustom()" style="flex:2;padding:11px 6px;border:2px solid rgba(255,255,255,.3);border-radius:11px;font-family:'Sarabun',sans-serif;font-size:0.9rem;color:#1A1A1A;background:#fff;outline:none;box-sizing:border-box;-webkit-appearance:none;text-align:center;">
+          <option value="">เดือน</option>
+          <option value="01">มกราคม</option><option value="02">กุมภาพันธ์</option><option value="03">มีนาคม</option>
+          <option value="04">เมษายน</option><option value="05">พฤษภาคม</option><option value="06">มิถุนายน</option>
+          <option value="07">กรกฎาคม</option><option value="08">สิงหาคม</option><option value="09">กันยายน</option>
+          <option value="10">ตุลาคม</option><option value="11">พฤศจิกายน</option><option value="12">ธันวาคม</option>
+        </select>
+        <select id="pl-year" onchange="savePlannerDateCustom()" style="flex:1.5;padding:11px 6px;border:2px solid rgba(255,255,255,.3);border-radius:11px;font-family:'Prompt',sans-serif;font-size:0.95rem;color:#1A1A1A;background:#fff;outline:none;box-sizing:border-box;-webkit-appearance:none;text-align:center;">
+          <option value="">ปี</option><option value="2024">2567</option><option value="2025">2568</option><option value="2026">2569</option><option value="2027">2570</option><option value="2028">2571</option><option value="2029">2572</option><option value="2030">2573</option>
+        </select>
+      </div>
     </div>
 
     <!-- No date warning -->
