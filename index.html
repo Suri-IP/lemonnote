@@ -9,7 +9,7 @@
 :root{--bg:#0A06C6;--surface:#263510;--card-dark:#2a3a0e;--lime:#A0FF2D;--yellow:#FFFF1E;--yellow2:#FFE51F;--pink:#F03E68;--purple:#9C6CFF;--teal:#33DF93;--teal2:rgb(51,223,147);--ws:#FFFFEB;--black:#1A1A1A;--muted:rgba(255,255,235,0.5);--border:rgba(160,255,45,0.18);}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{background:var(--bg);color:var(--ws);font-family:'Prompt',sans-serif;height:100%;overflow:hidden;max-width:100%;}
-.app{max-width:420px;margin:0 auto;height:100%;overflow-x:hidden;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding-bottom:calc(100px + env(safe-area-inset-bottom, 0px));overscroll-behavior-y:contain;}
+.app{max-width:420px;margin:0 auto;height:100%;overflow-x:hidden;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px));overscroll-behavior-y:contain;}
 
 /* HEADER */
 .hdr{padding:36px 20px 16px;display:flex;align-items:flex-start;justify-content:space-between;}
@@ -76,14 +76,14 @@ html,body{background:var(--bg);color:var(--ws);font-family:'Prompt',sans-serif;h
 .cd-val{font-size:0.9rem;font-weight:700;color:#fff;}
 
 /* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;display:flex;justify-content:center;padding:14px 0 calc(env(safe-area-inset-bottom, 0px) + 14px);gap:10px;background:#0A06C6;z-index:1000;}
-.nb{width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0;}
-.nb:active{transform:scale(0.9);}
-.nb.li{background:var(--lime);}
-.nb.pi{background:var(--pink);}
-.nb.te2{background:var(--teal);}
-.nb.pu2{background:var(--purple);}
-.nb.li svg,.nb.pi svg,.nb.te2 svg,.nb.pu2 svg{stroke:white;}
+
+
+
+
+
+
+
+
 /* Planner */
 .planner-hdr{width:100%;background:var(--pink);padding:36px 18px 22px;display:flex;align-items:center;gap:12px;}
 .planner-hdr-back{width:36px;height:36px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -214,17 +214,7 @@ html,body{background:var(--bg);color:var(--ws);font-family:'Prompt',sans-serif;h
 </div>
 
 <!-- BOTTOM NAV -->
-<div class="bnav">
-  <button class="nb li" aria-label="หน้าหลัก" onclick="goHome()">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-  </button>
-  <button class="nb pi" aria-label="วางแผนสอบ" onclick="goToPlanner()">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>
-  </button>
-  <button class="nb pu2" aria-label="โปรไฟล์">
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-  </button>
-</div>
+
 
 <!-- ===== QUIZ SCREEN ===== -->
 <div id="quiz-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f5f5e0;z-index:500;flex-direction:column;max-width:420px;margin:0 auto;overflow:hidden;">
@@ -2455,7 +2445,7 @@ function openQuiz() {
   qTimerSec = 240 * QUIZ_DATA.length;
   document.getElementById('quiz-screen').style.display = 'flex';
   document.getElementById('quiz-screen').style.flexDirection = 'column';
-  document.querySelector('.bnav').style.display = 'none';
+  
   document.getElementById('quiz-bottom-nav').style.display = 'flex';
   const rb = document.getElementById('result-btn');
   if (rb) rb.remove();
@@ -2471,7 +2461,7 @@ function closeAllScreens() {
   closeTips();
   closeRote();
   closeExamTips();
-  document.querySelector('.bnav').style.display = 'flex';
+  
 }
 function goHome() {
   closeQuiz();
@@ -2494,7 +2484,7 @@ function closePlanner(){
 function closeQuiz() {
   document.getElementById('quiz-screen').style.display = 'none';
   document.getElementById('quiz-bottom-nav').style.display = 'none';
-  document.querySelector('.bnav').style.display = 'flex';
+  
   clearInterval(qTimerInterval);
   closeCalcSheet();
 }
@@ -7034,11 +7024,11 @@ function openNotesPart(part) {
   document.getElementById('notes-part-sub').style.color = (part === 'part1' || part === 'part3') ? 'rgba(26,42,0,0.6)' : 'rgba(255,255,255,0.6)';
   body.innerHTML = cards.map(c => {
     const fn = c.type === 'sub' ? 'openNotesSub' : 'openNoteDetail';
-    return '<div onclick="' + fn + '(\'' + c.id + '\')" style="background:rgba(255,255,235,0.06);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
+    return '<div onclick="' + fn + '(\'' + c.id + '\')" style="background:#fff;border:1px solid #e0e0e0;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">'
       + '<div style="width:36px;height:36px;border-radius:10px;background:' + c.bg + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.72rem;font-weight:800;color:' + c.color + ';">' + c.num + '</div>'
-      + '<div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:var(--ws);">' + c.title + '</div>'
-      + '<div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">' + c.sub + '</div></div>'
-      + '<div style="color:var(--muted);font-size:1.2rem;">›</div></div>';
+      + '<div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;">' + c.title + '</div>'
+      + '<div style="font-size:0.72rem;color:#888;margin-top:2px;">' + c.sub + '</div></div>'
+      + '<div style="color:#aaa;font-size:1.2rem;">›</div></div>';
   }).join('');
   screen.style.display = 'flex';
   fixAppPadding();
@@ -7066,11 +7056,11 @@ function openNotesSub(subId) {
   document.getElementById('notes-sub-back').style.background = isLight ? 'rgba(26,42,0,0.15)' : 'rgba(255,255,255,0.2)';
   document.getElementById('notes-sub-sub').style.color = isLight ? 'rgba(26,42,0,0.6)' : 'rgba(255,255,255,0.6)';
   body.innerHTML = cards.map(c =>
-    '<div onclick="openNoteDetail(\'' + c.id + '\')" style="background:rgba(255,255,235,0.06);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;">'
+    '<div onclick="openNoteDetail(\'' + c.id + '\')" style="background:#fff;border:1px solid #e0e0e0;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">'
     + '<div style="width:10px;height:10px;border-radius:50%;background:' + c.bg + ';flex-shrink:0;margin-left:4px;"></div>'
-    + '<div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:var(--ws);">' + c.title + '</div>'
-    + '<div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">' + c.sub + '</div></div>'
-    + '<div style="color:var(--muted);font-size:1.2rem;">›</div></div>'
+    + '<div style="flex:1;"><div style="font-size:0.85rem;font-weight:700;color:#1a1a1a;">' + c.title + '</div>'
+    + '<div style="font-size:0.72rem;color:#888;margin-top:2px;">' + c.sub + '</div></div>'
+    + '<div style="color:#aaa;font-size:1.2rem;">›</div></div>'
   ).join('');
   screen.style.display = 'flex';
   fixAppPadding();
@@ -11659,7 +11649,7 @@ VFNNNdVU71j/P/iGMRRK8x1UAAAAAElFTkSuQmCC" transform="matrix(0.9898 0 0 1 0 0)">
 </div>
 
 <!-- NOTES SUB SCREEN -->
-<div id="notes-sub-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:510;flex-direction:column;max-width:420px;margin:0 auto;overflow:hidden;">
+<div id="notes-sub-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f2f2f2;z-index:510;flex-direction:column;max-width:420px;margin:0 auto;overflow:hidden;">
   <div id="notes-sub-bar" style="background:var(--lime);padding:36px 16px 14px;flex-shrink:0;display:flex;align-items:center;gap:10px;">
     <button id="notes-sub-back" onclick="closeNotesSub()" style="width:32px;height:32px;border-radius:50%;background:rgba(26,42,0,0.15);border:none;color:#1a2a00;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
     <div>
@@ -11671,7 +11661,7 @@ VFNNNdVU71j/P/iGMRRK8x1UAAAAAElFTkSuQmCC" transform="matrix(0.9898 0 0 1 0 0)">
 </div>
 
 <!-- NOTES PART SCREEN -->
-<div id="notes-part-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg);z-index:500;flex-direction:column;max-width:420px;margin:0 auto;overflow:hidden;">
+<div id="notes-part-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#f2f2f2;z-index:500;flex-direction:column;max-width:420px;margin:0 auto;overflow:hidden;">
   <div id="notes-part-bar" style="background:var(--lime);padding:36px 16px 14px;flex-shrink:0;display:flex;align-items:center;gap:10px;">
     <button id="notes-part-back" onclick="closeNotesPart()" style="width:32px;height:32px;border-radius:50%;background:rgba(26,42,0,0.15);border:none;color:#1a2a00;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">‹</button>
     <div>
@@ -12057,10 +12047,8 @@ function closeDeveloperPage() {
 }
 
 function fixAppPadding() {
-  const bnav = document.querySelector('.bnav');
-  if (!bnav) return;
-  const navH = bnav.getBoundingClientRect().height;
-  const navBottom = bnav.getBoundingClientRect().bottom;
+  const navH = 0;
+  const navBottom = window.innerHeight;
   const viewportH = window.innerHeight;
   const belowNav = Math.max(0, viewportH - navBottom);
   const pad = (navH + belowNav + 24) + 'px';
