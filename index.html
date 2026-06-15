@@ -137,6 +137,39 @@ html,body{background:var(--bg);color:var(--ws);font-family:'Prompt',sans-serif;h
 .fml-sub{font-size:0.72rem;font-weight:500;opacity:0.65;}
 .fml-mock{background:rgba(0,0,0,0.12);border-radius:4px;padding:1px 5px;font-size:0.62rem;}
 .fml-arr{font-size:1.3rem;opacity:0.4;flex-shrink:0;}
+
+/* FINANCIAL RATIOS (08) */
+.fr-wrap{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.fr-acc{background:#fff;border-bottom:1px solid #f0f0e8;}
+.fr-acc:last-child{border-bottom:none;}
+.fr-hdr{display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;user-select:none;background:#fff;}
+.fr-hdr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.fr-hdr-txt{flex:1;}
+.fr-hdr-grp{font-size:0.58rem;font-weight:700;color:#bbb;font-family:'Prompt',sans-serif;margin-bottom:1px;}
+.fr-hdr-title{font-size:0.88rem;font-weight:800;color:#1a1a1a;font-family:'Prompt',sans-serif;line-height:1.2;}
+.fr-hdr-sub{font-size:0.65rem;color:#bbb;font-family:'Sarabun',sans-serif;}
+.acc-arrow{font-size:1.1rem;font-weight:700;transition:transform 0.25s;opacity:0.3;flex-shrink:0;color:#1a1a1a;}
+.acc-arrow.open{transform:rotate(90deg);}
+.fr-body{display:none;background:#f8f8f2;padding:8px 14px 12px;border-top:1px solid #f0f0e8;}
+.fr-body.open{display:block;}
+.fr-row{background:#fff;border-radius:12px;padding:13px 14px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;}
+.fr-row-inner{display:flex;align-items:center;gap:10px;}
+.fr-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:800;font-family:'Prompt',sans-serif;flex-shrink:0;}
+.fr-row-content{flex:1;min-width:0;}
+.fr-rname{font-size:0.82rem;font-weight:700;color:#1a1a1a;font-family:'Prompt',sans-serif;line-height:1.3;}
+.fr-ren{font-size:0.67rem;color:#aaa;font-family:'Sarabun',sans-serif;}
+.fr-fml-wrap{display:flex;align-items:center;gap:10px;background:#eef6ff;border-radius:10px;padding:10px 14px;flex-wrap:wrap;width:100%;box-sizing:border-box;}
+.fr-fml-name{font-size:0.78rem;font-weight:700;color:#1a2a00;font-family:'Sarabun',sans-serif;white-space:nowrap;}
+.fr-fml-eq{font-size:0.82rem;font-weight:700;color:#1a2a00;margin:0 4px;}
+.fr-fraction{display:inline-flex;flex-direction:column;align-items:center;font-family:'Sarabun',sans-serif;font-size:0.76rem;font-weight:700;color:#1a2a00;line-height:1.4;}
+.fr-num{text-align:center;padding-bottom:2px;}
+.fr-denom{text-align:center;padding-top:2px;}
+.fr-bar{width:100%;min-width:60px;height:1.5px;background:#1a6b9a;opacity:0.5;}
+.fr-sig{display:inline-flex;align-items:center;gap:4px;margin-top:7px;font-size:0.65rem;font-weight:700;font-family:'Prompt',sans-serif;padding:3px 9px;border-radius:20px;}
+.fr-hi{background:#e8f5e0;color:#2a6a00;}
+.fr-lo{background:#fff0f0;color:#c62828;}
+.fr-note{font-size:0.7rem;font-family:'Sarabun',sans-serif;color:#999;margin-top:7px;line-height:1.6;}
+.fr-sublabel{font-size:0.63rem;font-weight:800;color:#bbb;font-family:'Prompt',sans-serif;padding:8px 0 4px;letter-spacing:0.3px;}
 </style>
 </head>
 <body>
@@ -7164,7 +7197,8 @@ function openFormulaDetail(idx) {
     'Portfolio Return',
     'Portfolio Risk',
     'Beta · β',
-    'รวมตัวแปร ความแปรปรวน · Covariance · Correlation · σp'
+    'รวมตัวแปร ความแปรปรวน · Covariance · Correlation · σp',
+    'อัตราส่วนทางการเงิน · Financial Ratios'
   ];
   const contents = [
     // 0: Expected Return (พร้อมใช้)
@@ -7637,7 +7671,9 @@ function openFormulaDetail(idx) {
         </div>
       </div>
 
-    </div>`
+    </div>`,
+    // 10: Financial Ratios — 6 กลุ่ม accordion
+    getFinRatioHTML()
   ];
   const barColors = [
     {bg:'var(--teal)', txt:'#1a2a00', sub:'rgba(26,42,0,0.5)'},
@@ -7650,6 +7686,7 @@ function openFormulaDetail(idx) {
     {bg:'#c0ccb0', txt:'#1a2a00', sub:'rgba(26,42,0,0.5)'},
     {bg:'#d4dcc4', txt:'#1a2a00', sub:'rgba(26,42,0,0.5)'},
     {bg:'#1a6b55', txt:'#fff', sub:'rgba(255,255,255,0.7)'},
+    {bg:'var(--yellow)', txt:'#1a1a00', sub:'rgba(26,26,0,0.5)'},
   ];
   const bar = document.getElementById('fml-detail-bar');
   const c = barColors[idx] || barColors[0];
@@ -7671,6 +7708,172 @@ function openFormulaNote() {
 function closeFormulaNote() {
   document.getElementById('formula-note-modal').style.display = 'none';
 }
+
+// ===== FINANCIAL RATIOS (08) =====
+function toggleAcc(hdr) {
+  const body = hdr.nextElementSibling;
+  const arrow = hdr.querySelector('.acc-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  arrow.classList.toggle('open', !isOpen);
+}
+
+function getFinRatioHTML() {
+  var G = [
+    {dot:'#33df93', badge:'#e8faf2', btxt:'#0a6a40', label:'กลุ่มที่ 1 (1–4)', title:'สภาพคล่องกิจการ', sub:'Liquidity Ratios'},
+    {dot:'#4ab8f0', badge:'#e0f4ff', btxt:'#004a7a', label:'กลุ่มที่ 2 (5–11)', title:'ประสิทธิภาพในการดำเนินงาน', sub:'Activity / Efficiency Ratios'},
+    {dot:'#f0c020', badge:'#fff8d0', btxt:'#6a4a00', label:'กลุ่มที่ 3 (12–16)', title:'โครงสร้างเงินทุน ⭐', sub:'Capital Structure Ratios'},
+    {dot:'#f03e68', badge:'#ffe0ea', btxt:'#800030', label:'กลุ่มที่ 4 (17–19)', title:'ความสามารถในการหากำไร', sub:'Profitability Margins'},
+    {dot:'#9c6cff', badge:'#ede0ff', btxt:'#3a0080', label:'กลุ่มที่ 5 (20–27)', title:'ผลตอบแทนต่อเจ้าของเงินทุน', sub:'ROA · ROE · DuPont'},
+    {dot:'#1a6b55', badge:'#d4eee8', btxt:'#003a30', label:'กลุ่มที่ 6 (28–30)', title:'ข้อมูลทางการเงินต่อหุ้น', sub:'Per Share Data · EPS · BPS'},
+  ];
+
+  function acc(gi, rows) {
+    var g = G[gi];
+    return '<div class="fr-acc">' +
+      '<div class="fr-hdr" onclick="toggleAcc(this)">' +
+        '<div class="fr-hdr-dot" style="background:' + g.dot + ';"></div>' +
+        '<div class="fr-hdr-txt">' +
+          '<div class="fr-hdr-grp">' + g.label + '</div>' +
+          '<div class="fr-hdr-title">' + g.title + '</div>' +
+          '<div class="fr-hdr-sub">' + g.sub + '</div>' +
+        '</div>' +
+        '<div class="acc-arrow">›</div>' +
+      '</div>' +
+      '<div class="fr-body">' + rows.join('') + '</div>' +
+    '</div>';
+  }
+
+  function frac(top, bot) {
+    return '<span class="fr-fraction"><span class="fr-num">' + top + '</span><span class="fr-bar"></span><span class="fr-denom">' + bot + '</span></span>';
+  }
+
+  function row(n, name, en, top, bot, sig, note, badge) {
+    var sigHtml = sig ? '<span class="fr-sig ' + (sig==='hi'?'fr-hi':'fr-lo') + '">' + (sig==='hi'?'↑ ควรสูง':'↓ ควรต่ำ') + '</span>' : '';
+    var noteHtml = note ? '<div class="fr-note">' + note + '</div>' : '';
+    return '<div class="fr-row">' +
+      '<div class="fr-row-inner">' +
+        '<div class="fr-badge" style="background:' + badge.bg + ';color:' + badge.c + ';">' + n + '</div>' +
+        '<div class="fr-rname">' + name + '</div>' +
+      '</div>' +
+      '<div class="fr-fml-wrap">' +
+        '<span class="fr-fml-name">' + name + '</span>' +
+        '<span class="fr-fml-eq">=</span>' +
+        frac(top, bot) +
+      '</div>' +
+      sigHtml + noteHtml +
+    '</div>';
+  }
+
+  function rowFree(n, name, en, fml, note, badge) {
+    var noteHtml = note ? '<div class="fr-note">' + note + '</div>' : '';
+    return '<div class="fr-row">' +
+      '<div class="fr-row-inner">' +
+        '<div class="fr-badge" style="background:' + badge.bg + ';color:' + badge.c + ';">' + n + '</div>' +
+        '<div class="fr-rname">' + name + '</div>' +
+      '</div>' +
+      fml + noteHtml +
+    '</div>';
+  }
+
+  function sub(txt) {
+    return '<div class="fr-sublabel">' + txt + '</div>';
+  }
+
+  function noteBox(color, txtColor, txt) {
+    return '<div style="background:' + color + ';border-radius:10px;padding:9px 12px;margin-bottom:4px;font-size:0.72rem;font-weight:700;font-family:\'Sarabun\',sans-serif;line-height:1.6;color:' + txtColor + ';">' + txt + '</div>';
+  }
+
+  var b1 = {bg:'#e8faf2', c:'#0a6a40'};
+  var b2 = {bg:'#e0f4ff', c:'#004a7a'};
+  var b3 = {bg:'#fff8d0', c:'#6a4a00'};
+  var b4 = {bg:'#ffe0ea', c:'#800030'};
+  var b5 = {bg:'#ede0ff', c:'#3a0080'};
+  var b6 = {bg:'#d4eee8', c:'#003a30'};
+
+  function fml2(n1, d1, n2, d2) {
+    return '<div class="fr-fml-wrap">' +
+      frac(n1, d1) + '<span class="fr-fml-eq">×</span>' + frac(n2, d2) +
+    '</div>';
+  }
+
+  function fml3(n1,d1,n2,d2,n3,d3) {
+    return '<div class="fr-fml-wrap">' +
+      frac(n1,d1) + '<span class="fr-fml-eq">×</span>' + frac(n2,d2) + '<span class="fr-fml-eq">×</span>' + frac(n3,d3) +
+    '</div>';
+  }
+
+  return '<div class="fr-wrap">' +
+
+    acc(0, [
+      row(1,'อัตราส่วนทุนหมุนเวียน','Current Ratio','สินทรัพย์หมุนเวียน','หนี้สินหมุนเวียน','hi','',b1),
+      row(2,'อัตราส่วนทุนหมุนเวียนเร็ว','Quick Ratio','เงินสด + หลักทรัพย์ตลาด + ลูกหนี้การค้า','หนี้สินหมุนเวียน','hi','',b1),
+      row(3,'อัตราส่วนเงินสด','Cash Ratio','เงินสด + หลักทรัพย์ในความต้องการตลาด','หนี้สินหมุนเวียน','hi','',b1),
+      row(4,'อัตราส่วนกระแสเงินสด','Cash Flow from Operation Ratio','กระแสเงินสดสุทธิจากการดำเนินงาน','หนี้สินหมุนเวียน','hi','',b1),
+    ]) +
+
+    acc(1, [
+      sub('◆ ระยะสั้น'),
+      row(5,'อัตราการหมุนเวียนของสินค้าคงเหลือ','Inventory Turnover','ต้นทุนขาย','สินค้าคงเหลือ ณ สิ้นปี','hi','',b2),
+      row(6,'จำนวนวันเฉลี่ยที่สินค้าค้างคลัง','Avg Days in Stock','365','อัตราการหมุนเวียนของสินค้าคงเหลือ (5)','lo','',b2),
+      row(7,'อัตราการหมุนเวียนของลูกหนี้การค้า','Receivable Turnover','รายได้จากการขายและบริการ','ลูกหนี้การค้า ณ สิ้นปี','hi','',b2),
+      row(8,'จำนวนวันที่ยอดสินเชื่อคงค้าง','Days Sales Outstanding (DSO)','365','อัตราการหมุนเวียนของลูกหนี้การค้า (7)','lo','',b2),
+      row(9,'อัตราส่วนเงินทุนหมุนเวียน','Working Capital Turnover','รายได้จากการขายและบริการ','เงินทุนหมุนเวียน ณ สิ้นปี','hi','💡 เงินทุนหมุนเวียน = ลูกหนี้การค้า + สินค้าคงเหลือ + ค่าใช้จ่ายล่วงหน้า − เจ้าหนี้การค้า − ค่าใช้จ่ายค้างจ่าย',b2),
+      sub('◆ ระยะยาว'),
+      row(10,'อัตราการหมุนเวียนของสินทรัพย์ถาวร','Fixed Assets Turnover','รายได้จากการขายและบริการ','สินทรัพย์ถาวรสุทธิ ณ สิ้นปี','hi','💡 สินทรัพย์ถาวรสุทธิ = ที่ดิน อาคาร อุปกรณ์ หลังหักค่าเสื่อมราคาสะสม',b2),
+      row(11,'อัตราการหมุนเวียนของสินทรัพย์รวม','Total Assets Turnover','รายได้จากการขายและบริการ','สินทรัพย์รวมสุทธิ ณ สิ้นปี','hi','',b2),
+    ]) +
+
+    acc(2, [
+      noteBox('#fff3cd','#7a4f00', '⭐ วัดว่ากิจการมีหนี้มากเกินไปหรือไม่ และมีความสามารถในการชำระหนี้ได้แค่ไหน'),
+      row(12,'อัตราส่วนหนี้สินต่อสินทรัพย์รวม','Debt-to-Total Assets Ratio','หนี้สินรวม','สินทรัพย์รวม','lo','',b3),
+      row(13,'ตัวคูณของส่วนของเจ้าของ','Equity Multiplier','สินทรัพย์รวม','ส่วนของเจ้าของ','','💡 ใช้ใน DuPont Analysis — ยิ่งสูง ยิ่งพึ่งหนี้มาก',b3),
+      row(14,'อัตราส่วนหนี้สินต่อส่วนของเจ้าของ','Debt-to-Equity Ratio','หนี้สินรวม','ส่วนของผู้ถือหุ้น','lo','',b3),
+      row(15,'อัตราส่วนความสามารถในการชำระดอกเบี้ย','Times Interest Earned','กำไรจากการดำเนินงาน (EBIT)','ดอกเบี้ยจ่าย','hi','',b3),
+      row(16,'อัตราการจ่ายเงินปันผล','Dividend Payout Ratio','เงินปันผลจ่ายต่อหุ้น','กำไรสุทธิต่อหุ้น (EPS)','hi','',b3),
+    ]) +
+
+    acc(3, [
+      noteBox('#fff0f6','#c0003a', '💡 ทั้ง 3 ตัวมีตัวหารเดียวกัน = รายได้จากการขายและบริการ'),
+      row(17,'อัตรากำไรขั้นต้น','Gross Profit Margin','กำไรขั้นต้น','รายได้จากการขายและบริการ','hi','กำไรขั้นต้น = รายได้ขาย − ต้นทุนขายและบริการ',b4),
+      row(18,'อัตรากำไรจากการดำเนินงาน','Operating Profit Margin','กำไรจากการดำเนินงาน (EBIT)','รายได้จากการขายและบริการ','hi','',b4),
+      row(19,'อัตรากำไรสุทธิ','Net Profit Margin','กำไรสุทธิ','รายได้จากการขายและบริการ','hi','',b4),
+    ]) +
+
+    acc(4, [
+      row(20,'อัตราผลตอบแทนต่อสินทรัพย์รวม','Return on Total Assets (ROA)','กำไรสุทธิ','สินทรัพย์รวม','hi','',b5),
+      row(21,'อัตราผลตอบแทนต่อส่วนของผู้ถือหุ้น','Return on Equity (ROE)','กำไรสุทธิ','ส่วนของผู้ถือหุ้น','hi','',b5),
+      sub('◆ DuPont Analysis — แตก ROE เป็นองค์ประกอบ'),
+      rowFree(22,'ROE แบบ 2 ตัวคูณ','ROE 2-Factor', fml2('กำไรสุทธิ','รายได้รวม','รายได้รวม','ส่วนของผู้ถือหุ้น'),'',b5),
+      rowFree(23,'ROE = Net Margin × Equity Turnover','ROE 2-Factor Simplified','<div class="fr-fml-wrap"><span class="fr-fml-name">ROE</span><span class="fr-fml-eq">=</span><span style="font-size:0.78rem;font-weight:700;color:#1a2a00;font-family:Sarabun,sans-serif;">อัตรากำไรสุทธิ (19) × อัตราหมุนเวียนส่วนของทุน (24)</span></div>','',b5),
+      rowFree(24,'อัตราหมุนเวียนของส่วนของทุน','Equity Turnover', fml2('รายได้รวม','สินทรัพย์รวม','สินทรัพย์รวม','ส่วนของผู้ถือหุ้น'),'',b5),
+      rowFree(25,'อัตราหมุนเวียนของส่วนของทุน (แบบย่อ)','Equity Turnover Simplified','<div class="fr-fml-wrap"><span style="font-size:0.78rem;font-weight:700;color:#1a2a00;font-family:Sarabun,sans-serif;">อัตราหมุนเวียนสินทรัพย์รวม (11) × ตัวคูณส่วนของเจ้าของ (13)</span></div>','',b5),
+      rowFree(26,'ROE DuPont 3 ตัวคูณ','ROE 3-Factor DuPont', fml3('กำไรสุทธิ','รายได้รวม','รายได้รวม','สินทรัพย์รวม','สินทรัพย์รวม','ส่วนของผู้ถือหุ้น'),'= Net Margin × Asset Turnover × Equity Multiplier',b5),
+      rowFree(27,'ROE DuPont แบบย่อ','ROE DuPont Simplified','<div class="fr-fml-wrap"><span class="fr-fml-name">ROE</span><span class="fr-fml-eq">=</span><span style="font-size:0.78rem;font-weight:700;color:#1a2a00;font-family:Sarabun,sans-serif;">อัตรากำไรสุทธิ (19) × อัตราหมุนเวียนสินทรัพย์รวม (11) × ตัวคูณส่วนของเจ้าของ (13)</span></div>','',b5),
+    ]) +
+
+    acc(5, [
+      row(28,'กำไรสุทธิต่อหุ้น','Earnings Per Share (EPS)','กำไรสุทธิของบริษัท','จำนวนหุ้นที่เรียกชำระแล้ว','','',b6),
+      row(29,'มูลค่าตามบัญชีต่อหุ้น','Book Value Per Share (BPS)','ส่วนของผู้ถือหุ้น','จำนวนหุ้นที่เรียกชำระแล้ว','','',b6),
+      row(30,'มูลค่าตามบัญชีต่อหุ้น (สูตรสินทรัพย์สุทธิ)','BPS — Net Asset','สินทรัพย์รวม − หนี้สินรวม','จำนวนหุ้นที่เรียกชำระแล้ว','','💡 สูตร 29 และ 30 ให้ผลเท่ากัน เพราะส่วนผู้ถือหุ้น = สินทรัพย์รวม − หนี้สินรวม',b6),
+    ]) +
+
+  '</div>';
+}
+
+function makeAccGroup(bg, color, num, title, sub, rows) {
+  return '<div class="fr-acc"><div class="fr-hdr" onclick="toggleAcc(this)"><div class="fr-hdr-dot" style="background:#'+bg+';"></div><div class="fr-hdr-txt"><div class="fr-hdr-title" style="color:#'+color+';">'+title+'</div></div><div class="acc-arrow">›</div></div><div class="fr-body">'+(Array.isArray(rows)?rows.join(''):rows)+'</div></div>';
+}
+function makeRatio(bg, num, name, en, top, bot, sig, sigLabel, note) {
+  return makeRatioNoHdr(bg, num, name, en, top, bot, sig, sigLabel, note);
+}
+function makeRatioNoHdr(bg, num, name, en, top, bot, sig, sigLabel, note) {
+  return '';
+}
+function makeRatioNoHdrFree(bg, num, name, en, fmlHtml, sig, note) {
+  return '';
+}
+
 
 // ===== TMV CALCULATOR =====
 let tmvOpen = false;
@@ -8070,6 +8273,11 @@ renderCD();
     <div class="fml-folder" style="--fc:#1a6b55;--ft:#fff;" onclick="openFormulaDetail(9)">
       <div class="fml-num">07</div>
       <div class="fml-name">รวมตัวแปร ความแปรปรวน<br><span class="fml-sub">Covariance · Correlation · σp · CFP M2</span></div>
+      <div class="fml-arr">›</div>
+    </div>
+    <div class="fml-folder" style="--fc:var(--yellow);--ft:#1a1a00;" onclick="openFormulaDetail(10)">
+      <div class="fml-num">08</div>
+      <div class="fml-name">อัตราส่วนทางการเงิน<br><span class="fml-sub">Financial Ratios · 30 สูตร · 6 กลุ่ม</span></div>
       <div class="fml-arr">›</div>
     </div>
   </div>
